@@ -12,7 +12,6 @@ Gem::Specification.new do |s|
   s.description     = %q{Creates directory of softlinks for all files with specified mediatype (.pdf, .mp4, etc.) in subdirectory tree}
   #s.add_runtime_dependency 
   s.add_development_dependency 'rspec'
-  s.add_development_dependency 'webmock'
   s.add_development_dependency 'fakefs'
   s.require_paths   = ['lib']
   s.files           = `git ls-files`.split("\n")
