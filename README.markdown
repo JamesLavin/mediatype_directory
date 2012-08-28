@@ -2,7 +2,7 @@
 
 ## DESCRIPTION
 
-MediatypeDirectory enables you to create a directory of (soft or hard) links to all files of a specified media type (or types) in a directory tree.
+MediatypeDirectory lets Linux/Mac users create a directory of (soft or hard) links to all files of a specified media type (or types) in a directory tree.
 
 ## WHY?
 
