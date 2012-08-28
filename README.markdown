@@ -20,7 +20,7 @@ I've run this only on Linux. It likely works on OS X. It probably won't work on 
 
 Create a new MediatypeDirectory object, passing in all your configuration options (or setting them on the object via setters). Then tell the new object to .create_directory:
 
-    require 'rubygems'
+    require 'mediatype_directory'
 
     config = {}
     config[:extensions]         = ['.flv','.mov','.mpg','.mp4']
