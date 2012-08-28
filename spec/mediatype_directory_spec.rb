@@ -13,6 +13,15 @@ module FakeFS
   end
 end
 
+# Overriding File.expand_path
+# so it will provide the fake user's
+# home directory
+class File
+  def self.expand_path(*args)
+    args[0].gsub(/~/,'/home/xavier')
+  end
+end
+
 describe MediatypeDirectory do
 
   subject { MediatypeDirectory.new(config) }
@@ -22,9 +31,7 @@ describe MediatypeDirectory do
   let(:exts) { ['.pdf','.odt'] }
   
   before do
-    #Dir.new('/home/xavier')
     FileUtils.mkdir_p('/home/xavier/Tech2')
-    FileUtils.mkdir_p('/home/xavier/Ruby')
     FileUtils.mkdir_p('/home/xavier/Tech2/Ruby/TESTING')
     FileUtils.mkdir_p('/home/xavier/Tech2/JQuery')
     FileUtils.mkdir_p('/home/xavier/Tech2/XML')
@@ -39,6 +46,15 @@ describe MediatypeDirectory do
     specify { File.exists?('/home/xavier/Tech2/Ruby/ruby.pdf') }
     specify { Dir.exists?('/home/xavier/Tech2/JQuery') }
     specify { Dir.pwd == '/home/xavier/Tech2' }
+    it "should find files using Dir.glob" do
+      pending
+      # This test fails because FakeFS is broken
+      # https://github.com/defunkt/fakefs/issues/142
+      # https://github.com/defunkt/fakefs/issues/121
+      Dir.chdir("/home/xavier/Tech2")
+      Dir.getwd.should == "/home/xavier/Tech2"
+      Dir.glob(File.join("**","*.pdf")).should_not == []
+    end
   end
 
   context "when config is empty hash" do
@@ -109,18 +125,47 @@ describe MediatypeDirectory do
 
   describe "#create_directory" do
 
-    context "when values are set properly" do
+    context "when values are set properly (with tildes)" do
 
       let(:config) { { mediatype_dirname: tilde_pdf_dir,
                        directory_tree: tilde_dir_tree,
                        extensions: exts } }
 
-      it "should check dirs, and create softlinks" do
-        #Dir.stub(:chdir)
+      it "should call :check directories and :create_softlinks" do
         subject.should_receive(:check_directories)
         Dir.should_receive(:chdir)
         subject.should_receive(:create_softlinks)
         subject.create_directory
+      end
+
+    end
+
+    context "when values are set properly (with full paths)" do
+
+      let(:xavier_docs_ruby) { '/home/xavier/Tech3/Docs/Ruby' }
+      let(:xavier_ruby) { '/home/xavier/Tech2/Ruby' }
+      let(:config) { { mediatype_dirname: xavier_docs_ruby,
+                       directory_tree: xavier_ruby,
+                       extensions: ['.pdf'],
+                       linktype: 'hard' } }
+
+      it "should create the correct directory" do
+        subject.create_directory
+        Dir.exists?(xavier_docs_ruby).should be_true
+      end
+
+      it "should create the correct files" do
+        pending
+        # This test fails because FakeFS is broken
+        subject.create_directory
+        Dir.exists?('/home/xavier/Tech3/Docs/Ruby').should be_true
+        Dir.chdir('/home/xavier/Tech3/Docs/Ruby')
+        Dir.getwd.should == '/home/xavier/Tech3/Docs/Ruby'
+        Dir.glob(File.join("**","*.pdf")).should_not == []
+        File.exists?('/home/xavier/Tech3/Docs/Ruby/ruby_testing.pdf').should be_true
+        File.exists?('/home/xavier/Tech3/Docs/Ruby/ruby.pdf').should be_true
+        File.exists?('/home/xavier/Tech3/Docs/jquery.pdf').should be_false
+        File.exists?('/home/xavier/Tech3/Docs/xml.xml').should be_false
       end
 
     end
