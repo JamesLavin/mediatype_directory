@@ -25,24 +25,28 @@ Create a new MediatypeDirectory object, passing in all your configuration option
     config = {}
     config[:extensions]         = ['.flv','.mov','.mpg','.mp4']
     config[:mediatype_dirname]  = '~/path/to/dir/where/you/want/to/create/links'
-    config[:directory_tree]     = '~/path/to/top-level-dir/you/want/to/create/mediatype-directory/for'
+    config[:directory_tree]     = '~/path/to/top-level-dir/where/your/files/are'
     config[:linktype]           = 'hard'  # default: 'soft'
     config[:test_mode]          = true    # default: false  In test_mode, no directories or files are actually created
 
     MediatypeDirectory.new(config).create_directory
 
-It's safe to re-run the program as many times as you want. If a link already exists, it will be skipped. But if a new file is found that matches the criteria, a new link will be added.
+config[:target] & config[:to] are aliases for config[:mediatype_dirname]. You can also call "md.target =" or "md.to = "
+
+config[:source] & config[:from] are aliases for config[:directory_tree]. You can also call "md.source =" or "md.from = "
+
+It's safe to re-run this program as many times as you want. If a link already exists, it will be skipped. But if a new file is found that matches the criteria, a new link will be added.
 
 ## EXAMPLE
 
     require 'mediatype_directory'
 
     md = MediatypeDirectory.new({
-          extensions: [".flv",".mov",".mpg",'.mp4'],   # List of file extensions for which you wish to generate links
-          directory_tree: '/home/jimmy/Tech/Ruby',     # Where to look for existing files
-          mediatype_dirname: '~/Tech/Docs2/Videos',    # Where to store links to existing files
-          linktype: 'hard',                            # Create hard links, not soft links (a.k.a. symbolic links)
-          test_mode: true                              # Show what would happen without actually creating directories or files
+          extensions: [".flv",".mov",".mpg",'.mp4'],  # List of file extensions for which you wish to generate links
+          from: '/home/jimmy/Tech/Ruby',              # Where to look for existing files
+          to: '~/Tech/Docs2/Videos',                  # Where to store links to existing files
+          linktype: 'hard',                           # Create hard links, not soft links (a.k.a. symbolic links)
+          test_mode: true                             # Show what would happen without actually creating directories or files
         })
 
     md.create_directory
