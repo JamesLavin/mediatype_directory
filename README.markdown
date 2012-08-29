@@ -23,26 +23,30 @@ Create a new MediatypeDirectory object, passing in all your configuration option
     require 'mediatype_directory'
 
     config = {}
-    config[:extensions]         = ['.flv','.mov','.mpg','.mp4']
-    config[:mediatype_dirname]  = '~/path/to/dir/where/you/want/to/create/links'
-    config[:directory_tree]     = '~/path/to/top-level-dir/where/your/files/are'
-    config[:linktype]           = 'hard'  # default: 'soft'
-    config[:test_mode]          = true    # default: false  In test_mode, no directories or files are actually created
+    config[:what]       = '.pdf'    # OR an array like ['.htm','.html','.shtml'] OR or a special string, 'audio' or 'video'
+    config[:from]       = '~/path/to/top-level-dir/where/your/files/are'
+    config[:to]         = '~/path/to/dir/where/you/want/to/create/links'
+    config[:linktype]   = 'hard'    # default: 'soft'
+    config[:test_mode]  = true      # (or 'true') default: false     In test_mode, no directories or files are actually created
 
     MediatypeDirectory.new(config).create_directory
 
-config[:target] & config[:to] are aliases for config[:mediatype_dirname]. You can also call "md.target =" or "md.to = "
+config[:what] has an alias, config[:extensions]. You can also call "md.extensions = " or "md.what = "
 
-config[:source] & config[:from] are aliases for config[:directory_tree]. You can also call "md.source =" or "md.from = "
+config[:from] has aliases config[:source] & config[:directory_tree]. You can also call "md.source =", "md.from = " or "md.directory_tree ="
+
+config[:to] has aliases config[:target] & config[:mediatype_dirname]. You can also call "md.target =", "md.to = " or "md.mediatype_dirname ="
 
 It's safe to re-run this program as many times as you want. If a link already exists, it will be skipped. But if a new file is found that matches the criteria, a new link will be added.
+
+If the original content of a hard link changes, the hard link will continue referring to the original version. You can delete the hard link (which should remove the old version from your system) and regenerate a new hardlink, which should point to the new version.
 
 ## EXAMPLE
 
     require 'mediatype_directory'
 
     md = MediatypeDirectory.new({
-          extensions: [".flv",".mov",".mpg",'.mp4'],  # List of file extensions for which you wish to generate links
+          what: [".flv",".mov",".mpg",'.mp4'],        # List of file extensions for which you wish to generate links
           from: '/home/jimmy/Tech/Ruby',              # Where to look for existing files
           to: '~/Tech/Docs2/Videos',                  # Where to store links to existing files
           linktype: 'hard',                           # Create hard links, not soft links (a.k.a. symbolic links)
