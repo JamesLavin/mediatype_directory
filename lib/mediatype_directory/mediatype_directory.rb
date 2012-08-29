@@ -25,22 +25,22 @@ require 'pathname'
 #
 class MediatypeDirectory
 
-  attr_accessor :extensions, :linktype
+  attr_accessor :extensions, :linktype, :test_mode
   attr_reader :mediatype_dirname, :directory_tree
 
   class InvalidDirname < StandardError
   end
 
   def initialize(config)
-    @extensions             = config[:extensions]
+    self.extensions         = config[:extensions]
     self.mediatype_dirname  = config[:mediatype_dirname]
     self.directory_tree     = config[:directory_tree]
-    @linktype               = config[:linktype] || 'soft'
+    self.linktype           = config[:linktype] || 'soft'
+    self.test_mode          = config[:test_mode] || false
   end
 
   def create_directory
     check_directories
-    Dir.chdir(mediatype_dirname)
     create_links
   end
 
@@ -83,7 +83,7 @@ class MediatypeDirectory
   end
 
   def mediatype_files_to_links
-    Dir.chdir(mediatype_dirname)
+    Dir.chdir(mediatype_dirname) unless test_mode
     @mediatype_files.each do |pathname|
       mediatype_file_to_link pathname
     end
@@ -96,7 +96,7 @@ class MediatypeDirectory
       puts "WARNING: #{link.to_s} already exists"
     else
       puts "Creating #{link.to_s}"
-      hardlinks? ? FileUtils.ln(pathname.to_s, link.to_s) : FileUtils.ln_s(pathname.to_s, link.to_s)
+      (hardlinks? ? FileUtils.ln(pathname.to_s, link.to_s) : FileUtils.ln_s(pathname.to_s, link.to_s)) unless test_mode
     end
   end
 
@@ -128,7 +128,7 @@ class MediatypeDirectory
   def make_dirname(dn)
     unless File.directory? dn
       puts "Creating directory #{dn}"
-      FileUtils.mkdir_p dn
+      FileUtils.mkdir_p(dn) unless test_mode
     end
   end
 

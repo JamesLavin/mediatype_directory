@@ -27,20 +27,20 @@ Create a new MediatypeDirectory object, passing in all your configuration option
     config[:mediatype_dirname]  = '~/path/to/dir/where/you/want/to/create/links'
     config[:directory_tree]     = '~/path/to/top-level-dir/you/want/to/create/mediatype-directory/for'
     config[:linktype]           = 'hard'  # default: 'soft'
+    config[:test_mode]          = true    # default: false  In test_mode, no directories or files are actually created
 
     MediatypeDirectory.new(config).create_directory
-
-## OPTIONS
 
 ## EXAMPLE
 
     require 'mediatype_directory'
 
     md = MediatypeDirectory.new({
-          extensions: [".flv",".mov",".mpg",'.mp4'],
+          extensions: [".flv",".mov",".mpg",'.mp4'],   # List of file extensions for which you wish to generate links
           directory_tree: '/home/jimmy/Tech/Ruby',     # Where to look for existing files
           mediatype_dirname: '~/Tech/Docs2/Videos',    # Where to store links to existing files
-          linktype: 'hard'
+          linktype: 'hard',                            # Create hard links, not soft links (a.k.a. symbolic links)
+          test_mode: true                              # Show what would happen without actually creating directories or files
         })
 
     md.create_directory
