@@ -31,6 +31,8 @@ Create a new MediatypeDirectory object, passing in all your configuration option
 
     MediatypeDirectory.new(config).create_directory
 
+It's safe to re-run the program as many times as you want. If a link already exists, it will be skipped. But if a new file is found that matches the criteria, a new link will be added.
+
 ## EXAMPLE
 
     require 'mediatype_directory'
