@@ -41,7 +41,7 @@ class MediatypeDirectory
   def create_directory
     check_directories
     Dir.chdir(mediatype_dirname)
-    create_softlinks
+    create_links
   end
 
   def mediatype_dirname=(dirname)
@@ -58,8 +58,8 @@ class MediatypeDirectory
     @linktype == 'hard'
   end
 
-  def create_softlinks
-    get_all_mediatype_files
+  def create_links
+    @mediatype_files = get_all_mediatype_files
     #puts "Found these files: " + @mediatype_files.to_s
     hardlinks? ? mediatype_files_to_hardlinks : mediatype_files_to_softlinks
   end
@@ -74,7 +74,11 @@ class MediatypeDirectory
       mediatype_files.concat(Dir.glob(search_for))
     end
     puts "Found these files: " + mediatype_files.to_s
-    @mediatype_files = mediatype_files.map { |mf| Pathname.new(mf).realpath }
+    convert_to_pathnames(mediatype_files).delete_if { |mf| mf.dirname.to_s == @mediatype_dirname }
+  end
+
+  def convert_to_pathnames(filenames)
+    filenames.map { |mf| Pathname.new(mf).realdirpath }
   end
 
   def mediatype_files_to_softlinks
@@ -92,6 +96,7 @@ class MediatypeDirectory
   end
 
   def mediatype_file_to_softlink(pathname)
+    puts "Attempting to create softlink for #{pathname.to_s}"
     softlink = Pathname.new(@mediatype_dirname) + pathname.basename
     if File.exists?(softlink.to_s)
       puts "WARNING: #{softlink.to_s} already exists"
@@ -103,6 +108,7 @@ class MediatypeDirectory
   end
 
   def mediatype_file_to_hardlink(pathname)
+    puts "Attempting to create hardlink for #{pathname.to_s}"
     hardlink = Pathname.new(@mediatype_dirname) + pathname.basename
     if File.exists?(hardlink.to_s)
       puts "WARNING: #{hardlink.to_s} already exists"
