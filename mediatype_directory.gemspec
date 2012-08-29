@@ -10,7 +10,7 @@ Gem::Specification.new do |s|
   s.homepage        = "https://github.com/JamesLavin/mediatype_directory"
   s.summary         = %q{Creates directory of links for all files with specified mediatype in subdirectory tree}
   s.description     = %q{Creates directory of hard or soft links for all files with specified mediatype (.pdf, .mp4, etc.) in subdirectory tree}
-  #s.add_runtime_dependency 
+  #s.add_runtime_dependency = ['fileutils','pathname']
   s.add_development_dependency 'rspec'
   s.add_development_dependency 'fakefs'
   s.require_paths   = ['lib']
