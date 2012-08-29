@@ -47,8 +47,7 @@ describe MediatypeDirectory do
     specify { Dir.exists?('/home/xavier/Tech2/JQuery') }
     specify { Dir.pwd == '/home/xavier/Tech2' }
     it "should find files using Dir.glob" do
-      pending
-      # This test fails because FakeFS is broken
+      pending "This test fails because FakeFS is broken"
       # https://github.com/defunkt/fakefs/issues/142
       # https://github.com/defunkt/fakefs/issues/121
       Dir.chdir("/home/xavier/Tech2")
@@ -131,10 +130,10 @@ describe MediatypeDirectory do
                        directory_tree: tilde_dir_tree,
                        extensions: exts } }
 
-      it "should call :check directories and :create_softlinks" do
+      it "should call :check directories and :create_links" do
         subject.should_receive(:check_directories)
         Dir.should_receive(:chdir)
-        subject.should_receive(:create_softlinks)
+        subject.should_receive(:create_links)
         subject.create_directory
       end
 
@@ -155,8 +154,7 @@ describe MediatypeDirectory do
       end
 
       it "should create the correct files" do
-        pending
-        # This test fails because FakeFS is broken
+        pending "This test fails because FakeFS is broken"
         subject.create_directory
         Dir.exists?('/home/xavier/Tech3/Docs/Ruby').should be_true
         Dir.chdir('/home/xavier/Tech3/Docs/Ruby')

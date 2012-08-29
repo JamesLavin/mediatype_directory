@@ -61,10 +61,11 @@ class MediatypeDirectory
   def create_links
     @mediatype_files = get_all_mediatype_files
     #puts "Found these files: " + @mediatype_files.to_s
-    hardlinks? ? mediatype_files_to_hardlinks : mediatype_files_to_softlinks
+    mediatype_files_to_links
   end
 
-  # stores array of files to be softlinked in @mediatype_files
+  # returns array of file pathnames in the directory_tree
+  # matching one of the file extensions
   def get_all_mediatype_files
     puts "Searching for files in #{directory_tree}"
     Dir.chdir(directory_tree)
@@ -81,41 +82,21 @@ class MediatypeDirectory
     filenames.map { |mf| Pathname.new(mf).realdirpath }
   end
 
-  def mediatype_files_to_softlinks
+  def mediatype_files_to_links
     Dir.chdir(mediatype_dirname)
     @mediatype_files.each do |pathname|
-      mediatype_file_to_softlink pathname
+      mediatype_file_to_link pathname
     end
   end
 
-  def mediatype_files_to_hardlinks
-    Dir.chdir(mediatype_dirname)
-    @mediatype_files.each do |pathname|
-      mediatype_file_to_hardlink pathname
-    end
-  end
-
-  def mediatype_file_to_softlink(pathname)
+  def mediatype_file_to_link(pathname)
     puts "Attempting to create link for #{pathname.to_s}"
     link = source_pathname_to_target_pathname(pathname)
     if File.exists?(link.to_s)
       puts "WARNING: #{link.to_s} already exists"
     else
       puts "Creating #{link.to_s}"
-      #`ln -s #{pathname.to_s} #{link.to_s}`
-      FileUtils.ln_s(pathname.to_s, link.to_s)
-    end
-  end
-
-  def mediatype_file_to_hardlink(pathname)
-    puts "Attempting to create link for #{pathname.to_s}"
-    link = source_pathname_to_target_pathname(pathname)
-    if File.exists?(link.to_s)
-      puts "WARNING: #{link.to_s} already exists"
-    else
-      puts "Creating #{link.to_s}"
-      #`ln #{pathname.to_s} #{link.to_s}`
-      FileUtils.ln(pathname.to_s, link.to_s)
+      hardlinks? ? FileUtils.ln(pathname.to_s, link.to_s) : FileUtils.ln_s(pathname.to_s, link.to_s)
     end
   end
 
