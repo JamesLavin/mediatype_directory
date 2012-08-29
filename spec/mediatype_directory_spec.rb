@@ -36,7 +36,10 @@ describe MediatypeDirectory do
     FileUtils.mkdir_p('/home/xavier/Tech2/JQuery')
     FileUtils.mkdir_p('/home/xavier/Tech2/XML')
     FileUtils.touch('/home/xavier/Tech2/Ruby/ruby.pdf')
+    FileUtils.touch('/home/xavier/Tech2/Ruby/ruby.flv')
     FileUtils.touch('/home/xavier/Tech2/Ruby/TESTING/ruby_testing.pdf')
+    FileUtils.touch('/home/xavier/Tech2/Ruby/TESTING/testing.mp3')
+    FileUtils.touch('/home/xavier/Tech2/Ruby/TESTING/testing.mp4')
     FileUtils.touch('/home/xavier/Tech2/JQuery/jquery.pdf')
     FileUtils.touch('/home/xavier/Tech2/XML/xml.xml')
     Dir.chdir('/home/xavier/Tech2')
@@ -100,6 +103,15 @@ describe MediatypeDirectory do
 
   end
 
+  context "when config sets test_mode as string 'true'" do
+
+    let(:config) { { to: tilde_pdf_dir, from: tilde_dir_tree, test_mode: 'true' } }
+  
+    it { should be_true }
+    its(:test_mode) { should be_true }
+
+  end
+
   context "when config sets :source and :target" do
 
     let(:config) { { target: tilde_pdf_dir, source: tilde_dir_tree } }
@@ -117,6 +129,24 @@ describe MediatypeDirectory do
     it { should be_true }
     its(:mediatype_dirname) { should == File.expand_path(tilde_pdf_dir) }
     its(:directory_tree) { should == File.expand_path(tilde_dir_tree) }
+
+  end
+
+  context "when config sets :what to 'ViDeO'" do
+
+    let(:config) { { to: tilde_pdf_dir, from: tilde_dir_tree, what: 'ViDeO' } }
+  
+    it { should be_true }
+    its(:extensions) { should include('.flv','.mov','.mp4','.ogv','.rm') }
+
+  end
+
+  context "when config sets :what to 'AuDiO'" do
+
+    let(:config) { { to: tilde_pdf_dir, from: tilde_dir_tree, what: 'AuDiO' } }
+  
+    it { should be_true }
+    its(:extensions) { should include('.dss','.flac','.mp3','.ogg','.ra') }
 
   end
 
