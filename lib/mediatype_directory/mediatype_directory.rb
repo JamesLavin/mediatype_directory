@@ -96,27 +96,31 @@ class MediatypeDirectory
   end
 
   def mediatype_file_to_softlink(pathname)
-    puts "Attempting to create softlink for #{pathname.to_s}"
-    softlink = Pathname.new(@mediatype_dirname) + pathname.basename
-    if File.exists?(softlink.to_s)
-      puts "WARNING: #{softlink.to_s} already exists"
+    puts "Attempting to create link for #{pathname.to_s}"
+    link = source_pathname_to_target_pathname(pathname)
+    if File.exists?(link.to_s)
+      puts "WARNING: #{link.to_s} already exists"
     else
-      puts "Creating #{softlink.to_s}"
-      #`ln -s #{pathname.to_s} #{softlink.to_s}`
-      FileUtils.ln_s(pathname.to_s, softlink.to_s)
+      puts "Creating #{link.to_s}"
+      #`ln -s #{pathname.to_s} #{link.to_s}`
+      FileUtils.ln_s(pathname.to_s, link.to_s)
     end
   end
 
   def mediatype_file_to_hardlink(pathname)
-    puts "Attempting to create hardlink for #{pathname.to_s}"
-    hardlink = Pathname.new(@mediatype_dirname) + pathname.basename
-    if File.exists?(hardlink.to_s)
-      puts "WARNING: #{hardlink.to_s} already exists"
+    puts "Attempting to create link for #{pathname.to_s}"
+    link = source_pathname_to_target_pathname(pathname)
+    if File.exists?(link.to_s)
+      puts "WARNING: #{link.to_s} already exists"
     else
-      puts "Creating #{hardlink.to_s}"
-      #`ln #{pathname.to_s} #{hardlink.to_s}`
-      FileUtils.ln(pathname.to_s, hardlink.to_s)
+      puts "Creating #{link.to_s}"
+      #`ln #{pathname.to_s} #{link.to_s}`
+      FileUtils.ln(pathname.to_s, link.to_s)
     end
+  end
+
+  def source_pathname_to_target_pathname(source_pathname)
+    Pathname.new(mediatype_dirname) + source_pathname.basename
   end
 
   def nil_or_convert_dirname(dirname)
