@@ -25,14 +25,28 @@ require 'pathname'
 #
 class MediatypeDirectory
 
-  attr_accessor :extensions, :linktype, :test_mode
-  attr_reader :mediatype_dirname, :directory_tree
+  VIDEO_FILE_EXTENSIONS = ['.3g2','.3gp','.asf','.asx','.avi','.bsf','.dat',
+                           '.divx','.dvdmedia','.f4v','.fbr','.flv','.hdmov',
+                           '.imovieproj','.m2p','.m4v','.mod','.moi','.mov',
+                           '.mp4','.mpeg','.mpg','.mts','.ogm','.ogv','.ogx',
+                           '.rm','.rmvb','.scm','.srt','.swf','.vob','.vro',
+                           '.wmv','.xvid','.yuv']
+
+  AUDIO_FILE_EXTENSIONS = ['.aa','.aa3','.acd','.acm','.aif','.amr','.ape',
+                           '.at3','.caf','.dcf','.dss','.emp','.emx','.flac',
+                           '.gpx','.iff','.kpl','.m3u','.m3u8','.m4a','.m4b',
+                           '.m4p','.mid','.midi','.mod','.mp3','.mpa','.mpga',
+                           '.oga','.ogg','.omf','.pcast','.ra','.ram','.snd',
+                           '.wav','.wma']
+
+  attr_accessor :extensions, :linktype
+  attr_reader :mediatype_dirname, :directory_tree, :test_mode
 
   class InvalidDirname < StandardError
   end
 
   def initialize(config)
-    self.extensions         = config[:extensions]
+    self.extensions         = config[:extensions] || config[:what]
     self.mediatype_dirname  = config[:mediatype_dirname] || config[:target] || config[:to]
     self.directory_tree     = config[:directory_tree] || config[:source] || config[:from]
     self.linktype           = config[:linktype] || 'soft'
@@ -52,6 +66,22 @@ class MediatypeDirectory
     @directory_tree = nil_or_convert_dirname(dirname)
   end
 
+  def extensions=(exts)
+    @extensions = if exts =~ /video/i
+                    VIDEO_FILE_EXTENSIONS
+                  elsif exts =~ /audio/i
+                    AUDIO_FILE_EXTENSIONS
+                  else
+                    Array(exts)
+                  end
+  end
+
+  def test_mode=(val)
+    @test_mode = (val == true || val == 'true')
+  end
+
+  alias_method :what, :extensions
+  alias_method :what=, :extensions=
   alias_method :source, :directory_tree
   alias_method :from, :directory_tree
   alias_method :source=, :directory_tree=
