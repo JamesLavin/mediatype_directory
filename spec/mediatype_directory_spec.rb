@@ -96,11 +96,27 @@ describe MediatypeDirectory do
     let(:config) { { mediatype_dirname: tilde_pdf_dir } }
   
     it { should be_true }
-    
-    #it "should set mediatype_dirname correctly" do
-    specify { subject.mediatype_dirname.should == File.expand_path(tilde_pdf_dir) }
-    #its(:mediatype_dirname) { should == File.expand_path(tilde_pdf_dir) }
-    #end
+    its(:mediatype_dirname) { should == File.expand_path(tilde_pdf_dir) }
+
+  end
+
+  context "when config sets :source and :target" do
+
+    let(:config) { { target: tilde_pdf_dir, source: tilde_dir_tree } }
+  
+    it { should be_true }
+    its(:mediatype_dirname) { should == File.expand_path(tilde_pdf_dir) }
+    its(:directory_tree) { should == File.expand_path(tilde_dir_tree) }
+
+  end
+
+  context "when config sets :from and :to" do
+
+    let(:config) { { to: tilde_pdf_dir, from: tilde_dir_tree } }
+  
+    it { should be_true }
+    its(:mediatype_dirname) { should == File.expand_path(tilde_pdf_dir) }
+    its(:directory_tree) { should == File.expand_path(tilde_dir_tree) }
 
   end
 
@@ -132,7 +148,6 @@ describe MediatypeDirectory do
 
       it "should call :check directories and :create_links" do
         subject.should_receive(:check_directories)
-        Dir.should_receive(:chdir)
         subject.should_receive(:create_links)
         subject.create_directory
       end
@@ -148,22 +163,46 @@ describe MediatypeDirectory do
                        extensions: ['.pdf'],
                        linktype: 'hard' } }
 
-      it "should create the correct directory" do
-        subject.create_directory
-        Dir.exists?(xavier_docs_ruby).should be_true
+      context "with test_mode = false" do
+
+        it "should create the correct directory" do
+          subject.create_directory
+          Dir.exists?(xavier_docs_ruby).should be_true
+        end
+
+        it "should create the correct files" do
+          pending "This test fails because FakeFS is broken"
+          subject.create_directory
+          Dir.exists?('/home/xavier/Tech3/Docs/Ruby').should be_true
+          Dir.chdir('/home/xavier/Tech3/Docs/Ruby')
+          Dir.getwd.should == '/home/xavier/Tech3/Docs/Ruby'
+          Dir.glob(File.join("**","*.pdf")).should_not == []
+          File.exists?('/home/xavier/Tech3/Docs/Ruby/ruby_testing.pdf').should be_true
+          File.exists?('/home/xavier/Tech3/Docs/Ruby/ruby.pdf').should be_true
+          File.exists?('/home/xavier/Tech3/Docs/jquery.pdf').should be_false
+          File.exists?('/home/xavier/Tech3/Docs/xml.xml').should be_false
+        end
+
       end
 
-      it "should create the correct files" do
-        pending "This test fails because FakeFS is broken"
-        subject.create_directory
-        Dir.exists?('/home/xavier/Tech3/Docs/Ruby').should be_true
-        Dir.chdir('/home/xavier/Tech3/Docs/Ruby')
-        Dir.getwd.should == '/home/xavier/Tech3/Docs/Ruby'
-        Dir.glob(File.join("**","*.pdf")).should_not == []
-        File.exists?('/home/xavier/Tech3/Docs/Ruby/ruby_testing.pdf').should be_true
-        File.exists?('/home/xavier/Tech3/Docs/Ruby/ruby.pdf').should be_true
-        File.exists?('/home/xavier/Tech3/Docs/jquery.pdf').should be_false
-        File.exists?('/home/xavier/Tech3/Docs/xml.xml').should be_false
+      context "with test_mode = true" do
+
+        before { subject.test_mode = true }
+
+        it "should not create the correct directory" do
+          subject.create_directory
+          Dir.exists?(xavier_docs_ruby).should be_false
+        end
+
+        it "should create the correct files" do
+          pending "This test fails because FakeFS is broken"
+          subject.create_directory
+          Dir.exists?('/home/xavier/Tech3/Docs/Ruby').should be_false
+          Dir.glob(File.join("**","*.pdf")).should_not == []
+          File.exists?('/home/xavier/Tech3/Docs/Ruby/ruby_testing.pdf').should be_false
+          File.exists?('/home/xavier/Tech3/Docs/Ruby/ruby.pdf').should be_false
+        end
+
       end
 
     end

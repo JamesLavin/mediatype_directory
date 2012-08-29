@@ -33,8 +33,8 @@ class MediatypeDirectory
 
   def initialize(config)
     self.extensions         = config[:extensions]
-    self.mediatype_dirname  = config[:mediatype_dirname]
-    self.directory_tree     = config[:directory_tree]
+    self.mediatype_dirname  = config[:mediatype_dirname] || config[:target] || config[:to]
+    self.directory_tree     = config[:directory_tree] || config[:source] || config[:from]
     self.linktype           = config[:linktype] || 'soft'
     self.test_mode          = config[:test_mode] || false
   end
@@ -51,6 +51,15 @@ class MediatypeDirectory
   def directory_tree=(dirname)
     @directory_tree = nil_or_convert_dirname(dirname)
   end
+
+  alias_method :source, :directory_tree
+  alias_method :from, :directory_tree
+  alias_method :source=, :directory_tree=
+  alias_method :from=, :directory_tree=
+  alias_method :target, :mediatype_dirname
+  alias_method :to, :mediatype_dirname
+  alias_method :target=, :mediatype_dirname=
+  alias_method :to=, :mediatype_dirname=
 
   private
 
