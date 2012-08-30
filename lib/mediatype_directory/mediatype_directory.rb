@@ -40,7 +40,7 @@ class MediatypeDirectory
                            '.wav','.wma']
 
   attr_accessor :extensions, :linktype
-  attr_reader :mediatype_dirname, :directory_tree, :test_mode, :mediatype_files
+  attr_reader :mediatype_dirname, :directory_tree, :test_mode, :mediatype_files, :remove_old_links
 
   class InvalidDirname < StandardError
   end
@@ -51,10 +51,12 @@ class MediatypeDirectory
     self.directory_tree     = config[:directory_tree] || config[:source] || config[:from]
     self.linktype           = config[:linktype] || 'soft'
     self.test_mode          = config[:test_mode] || false
+    self.remove_old_links   = config[:remove_old_links] || false
   end
 
   def create_directory
     check_directories
+    delete_old_links if remove_old_links
     create_links
   end
 
@@ -78,6 +80,10 @@ class MediatypeDirectory
 
   def test_mode=(val)
     @test_mode = (val == true || val == 'true')
+  end
+
+  def remove_old_links=(val)
+    @remove_old_links = (val == true || val == 'true')
   end
 
   alias_method :what, :extensions
@@ -113,7 +119,7 @@ class MediatypeDirectory
       search_for = File.join(directory_tree, "**", '*' + ex)        # example: "/home/xavier/Tech/Docs/**/*.pdf"
       matching_files.concat(Dir.glob(search_for))
     end
-    puts "Found these files: " + matching_files.to_s
+    #puts "Found these files: " + matching_files.to_s
     convert_to_pathnames(matching_files).delete_if { |file| file.dirname.to_s == mediatype_dirname.to_s }
   end
 
@@ -127,10 +133,16 @@ class MediatypeDirectory
     end
   end
 
+  # In test_mode with delete_old_links, we want to pretend the links
+  # have been deleted, even though we're not actually deleting them
+  def pretend_links_do_not_exist
+    test_mode && remove_old_links
+  end
+
   def mediatype_file_to_link(pathname)
     puts "Attempting to create link for #{pathname.to_s}"
     link = source_pathname_to_target_pathname(pathname)
-    if File.exists?(link.to_s)
+    if File.exists?(link.to_s)  && !pretend_links_do_not_exist
       puts "WARNING: #{link.to_s} already exists"
     else
       puts "Creating #{link.to_s}"
@@ -184,6 +196,22 @@ class MediatypeDirectory
 
   def convert_to_pathname(path)
     Pathname.new(path)
+  end
+
+  def delete_old_links
+    old_links.each do |ol|
+      puts "Deleting file #{ol}"
+      File.unlink(ol) unless test_mode
+    end
+  end
+
+  def old_links
+    old_links = []
+    @extensions.each do |ex|
+      search_for = File.join(mediatype_dirname, "**", '*' + ex)        # example: "/home/xavier/Tech/Docs/**/*.pdf"
+      old_links.concat(Dir.glob(search_for))
+    end
+    old_links
   end
 
 end

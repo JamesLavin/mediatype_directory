@@ -27,7 +27,8 @@ Create a new MediatypeDirectory object, passing in all your configuration option
     config[:from]       = '~/path/to/top-level-dir/where/your/files/are'
     config[:to]         = '~/path/to/dir/where/you/want/to/create/links'
     config[:linktype]   = 'hard'    # default: 'soft'
-    config[:test_mode]  = true      # (or 'true') default: false     In test_mode, no directories or files are actually created
+    config[:test_mode]  = true      # (or 'true', default: false)   In test_mode, no directories or files are actually created and no old links are removed
+    config[:remove_old_links]  = true   # (or 'true', default: false)  If true, all existing links in the link directory are deleted before creating new links
 
     MediatypeDirectory.new(config).create_directory
 
@@ -37,7 +38,7 @@ config[:from] has aliases config[:source] & config[:directory_tree]. You can als
 
 config[:to] has aliases config[:target] & config[:mediatype_dirname]. You can also call "md.target =", "md.to = " or "md.mediatype_dirname ="
 
-It's safe to re-run this program as many times as you want. If a link already exists, it will be skipped. But if a new file is found that matches the criteria, a new link will be added.
+It's safe to re-run this program as many times as you want. If a link already exists, it will be skipped (unless you set :remove_old_links = true). But if a new file is found that matches the criteria, a new link will be added.
 
 If the original content of a hard link changes, the hard link will continue referring to the original version. You can delete the hard link (which should remove the old version from your system) and regenerate a new hardlink, which should point to the new version.
 
