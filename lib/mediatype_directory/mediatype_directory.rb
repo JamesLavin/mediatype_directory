@@ -40,7 +40,7 @@ class MediatypeDirectory
                            '.wav','.wma']
 
   attr_accessor :extensions, :linktype
-  attr_reader :mediatype_dirname, :directory_tree, :test_mode
+  attr_reader :mediatype_dirname, :directory_tree, :test_mode, :mediatype_files
 
   class InvalidDirname < StandardError
   end
@@ -99,7 +99,7 @@ class MediatypeDirectory
 
   def create_links
     @mediatype_files = get_all_mediatype_files
-    #puts "Found these files: " + @mediatype_files.to_s
+    #puts "Found these files: " + mediatype_files.to_s
     mediatype_files_to_links
   end
 
@@ -107,23 +107,22 @@ class MediatypeDirectory
   # matching one of the file extensions
   def get_all_mediatype_files
     puts "Searching for files in #{directory_tree}"
-    Dir.chdir(directory_tree)
-    mediatype_files = []
+    # Rewrote to use absolute search paths because FakeFS chokes on Dir.chdir
+    matching_files = []
     @extensions.each do |ex|
-      search_for = File.join("**", '*' + ex)        # example: "**/*.pdf"
-      mediatype_files.concat(Dir.glob(search_for))
+      search_for = File.join(directory_tree, "**", '*' + ex)        # example: "/home/xavier/Tech/Docs/**/*.pdf"
+      matching_files.concat(Dir.glob(search_for))
     end
-    puts "Found these files: " + mediatype_files.to_s
-    convert_to_pathnames(mediatype_files).delete_if { |mf| mf.dirname.to_s == @mediatype_dirname }
+    puts "Found these files: " + matching_files.to_s
+    convert_to_pathnames(matching_files).delete_if { |file| file.dirname.to_s == mediatype_dirname.to_s }
   end
 
-  def convert_to_pathnames(filenames)
-    filenames.map { |mf| Pathname.new(mf).realdirpath }
+  def convert_to_pathnames(path_string_array)
+    path_string_array.map { |path_string| Pathname.new(path_string) }
   end
 
   def mediatype_files_to_links
-    Dir.chdir(mediatype_dirname) unless test_mode
-    @mediatype_files.each do |pathname|
+    mediatype_files.each do |pathname|
       mediatype_file_to_link pathname
     end
   end
@@ -135,16 +134,18 @@ class MediatypeDirectory
       puts "WARNING: #{link.to_s} already exists"
     else
       puts "Creating #{link.to_s}"
-      (hardlinks? ? FileUtils.ln(pathname.to_s, link.to_s) : FileUtils.ln_s(pathname.to_s, link.to_s)) unless test_mode
+      # Switched from File.link to FileUtils.ln because FakeFS doesn't know FileUtils.ln but knows File.link
+      (hardlinks? ? File.link(pathname.to_s, link.to_s) : FileUtils.ln_s(pathname.to_s, link.to_s)) unless test_mode
     end
   end
 
   def source_pathname_to_target_pathname(source_pathname)
-    Pathname.new(mediatype_dirname) + source_pathname.basename
+    #Pathname.new(mediatype_dirname) + source_pathname.basename
+    mediatype_dirname + source_pathname.basename
   end
 
   def nil_or_convert_dirname(dirname)
-    (dirname.nil? || dirname == '') ? nil : convert_dirname(dirname)
+    (dirname.nil? || dirname == '') ? nil : convert_to_pathname(expand_path(dirname))
   end
 
   def check_directories
@@ -154,7 +155,7 @@ class MediatypeDirectory
 
   def create_missing_directories
     [mediatype_dirname, directory_tree].each do|dn|
-      make_dirname(dn)
+      make_dirname(dn.to_s)
     end
   end
 
@@ -164,21 +165,25 @@ class MediatypeDirectory
     end
   end
 
-  def make_dirname(dn)
-    unless File.directory? dn
-      puts "Creating directory #{dn}"
-      FileUtils.mkdir_p(dn) unless test_mode
+  def make_dirname(dn_string)
+    unless File.directory? dn_string
+      puts "Creating directory #{dn_string}"
+      FileUtils.mkdir_p(dn_string) unless test_mode
     end
   end
 
   # Ideally, should use a regexp that matches valid directories
   # For now, a simple sanity check
   def validate_dirname(dirname)
-    raise MediatypeDirectory::InvalidDirname, "#{dirname} is not a valid directory name" if dirname.match(/\s/) || !dirname.match(/^\//)
+    raise MediatypeDirectory::InvalidDirname, "#{dirname.to_s} is not a valid directory name" if !dirname.to_s.match(/^\//)
   end
 
-  def convert_dirname(dirname)
-    File.expand_path(dirname)
+  def expand_path(path)
+    File.expand_path(path)
+  end
+
+  def convert_to_pathname(path)
+    Pathname.new(path)
   end
 
 end

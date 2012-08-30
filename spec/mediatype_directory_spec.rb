@@ -1,6 +1,5 @@
 require "spec_helper"
 require_relative '../lib/mediatype_directory/mediatype_directory'
-#require 'fakefs'
 
 # Overriding FakeFS' File.expand_path
 # because it delegates to the same class
@@ -11,6 +10,8 @@ module FakeFS
       args[0].gsub(/~/,'/home/xavier')
     end
   end
+  # Started overriding FileUtils.ln because FakeFS doesn't know about it
+  # Instead switched to using File.link, which FakeFS knows about
 end
 
 # Overriding File.expand_path
@@ -50,12 +51,10 @@ describe MediatypeDirectory do
     specify { Dir.exists?('/home/xavier/Tech2/JQuery') }
     specify { Dir.pwd == '/home/xavier/Tech2' }
     it "should find files using Dir.glob" do
-      pending "This test fails because FakeFS is broken"
-      # https://github.com/defunkt/fakefs/issues/142
-      # https://github.com/defunkt/fakefs/issues/121
-      Dir.chdir("/home/xavier/Tech2")
-      Dir.getwd.should == "/home/xavier/Tech2"
-      Dir.glob(File.join("**","*.pdf")).should_not == []
+      Dir.glob(File.join("/home/xavier/Tech2","**","*.pdf")).should == 
+           ["/home/xavier/Tech2/JQuery/jquery.pdf", 
+            "/home/xavier/Tech2/Ruby/TESTING/ruby_testing.pdf",
+            "/home/xavier/Tech2/Ruby/ruby.pdf"]
     end
   end
 
@@ -70,7 +69,7 @@ describe MediatypeDirectory do
 
       before { subject.mediatype_dirname = tilde_pdf_dir }
 
-      its(:mediatype_dirname) { should == File.expand_path(tilde_pdf_dir) }
+      its(:mediatype_dirname) { should == Pathname.new(File.expand_path(tilde_pdf_dir)) }
 
     end
 
@@ -78,7 +77,7 @@ describe MediatypeDirectory do
 
       before { subject.directory_tree = tilde_dir_tree }
 
-      its(:directory_tree) { should == File.expand_path(tilde_dir_tree) }
+      its(:directory_tree) { should == Pathname.new(File.expand_path(tilde_dir_tree)) }
 
     end
 
@@ -99,7 +98,7 @@ describe MediatypeDirectory do
     let(:config) { { mediatype_dirname: tilde_pdf_dir } }
   
     it { should be_true }
-    its(:mediatype_dirname) { should == File.expand_path(tilde_pdf_dir) }
+    its(:mediatype_dirname) { should == Pathname.new(File.expand_path(tilde_pdf_dir)) }
 
   end
 
@@ -117,8 +116,8 @@ describe MediatypeDirectory do
     let(:config) { { target: tilde_pdf_dir, source: tilde_dir_tree } }
   
     it { should be_true }
-    its(:mediatype_dirname) { should == File.expand_path(tilde_pdf_dir) }
-    its(:directory_tree) { should == File.expand_path(tilde_dir_tree) }
+    its(:mediatype_dirname) { should == Pathname.new(File.expand_path(tilde_pdf_dir)) }
+    its(:directory_tree) { should == Pathname.new(File.expand_path(tilde_dir_tree)) }
 
   end
 
@@ -127,8 +126,8 @@ describe MediatypeDirectory do
     let(:config) { { to: tilde_pdf_dir, from: tilde_dir_tree } }
   
     it { should be_true }
-    its(:mediatype_dirname) { should == File.expand_path(tilde_pdf_dir) }
-    its(:directory_tree) { should == File.expand_path(tilde_dir_tree) }
+    its(:mediatype_dirname) { should == Pathname.new(File.expand_path(tilde_pdf_dir)) }
+    its(:directory_tree) { should == Pathname.new(File.expand_path(tilde_dir_tree)) }
 
   end
 
@@ -155,7 +154,7 @@ describe MediatypeDirectory do
     let(:config) { { directory_tree: tilde_dir_tree } }
   
     it { should be_true }
-    its(:directory_tree) { should == File.expand_path(tilde_dir_tree) }
+    its(:directory_tree) { should == Pathname.new(File.expand_path(tilde_dir_tree)) }
 
   end
 
@@ -201,12 +200,11 @@ describe MediatypeDirectory do
         end
 
         it "should create the correct files" do
-          pending "This test fails because FakeFS is broken"
           subject.create_directory
           Dir.exists?('/home/xavier/Tech3/Docs/Ruby').should be_true
-          Dir.chdir('/home/xavier/Tech3/Docs/Ruby')
-          Dir.getwd.should == '/home/xavier/Tech3/Docs/Ruby'
-          Dir.glob(File.join("**","*.pdf")).should_not == []
+          Dir.glob(File.join("/home/xavier/Tech3","**","*.pdf")).should == 
+              ["/home/xavier/Tech3/Docs/Ruby/ruby.pdf",
+               "/home/xavier/Tech3/Docs/Ruby/ruby_testing.pdf"]
           File.exists?('/home/xavier/Tech3/Docs/Ruby/ruby_testing.pdf').should be_true
           File.exists?('/home/xavier/Tech3/Docs/Ruby/ruby.pdf').should be_true
           File.exists?('/home/xavier/Tech3/Docs/jquery.pdf').should be_false
@@ -224,11 +222,10 @@ describe MediatypeDirectory do
           Dir.exists?(xavier_docs_ruby).should be_false
         end
 
-        it "should create the correct files" do
-          pending "This test fails because FakeFS is broken"
+        it "should not create any files" do
           subject.create_directory
           Dir.exists?('/home/xavier/Tech3/Docs/Ruby').should be_false
-          Dir.glob(File.join("**","*.pdf")).should_not == []
+          Dir.glob(File.join("/home/xavier/Tech3/Docs/Ruby","**","*.pdf")).should == []
           File.exists?('/home/xavier/Tech3/Docs/Ruby/ruby_testing.pdf').should be_false
           File.exists?('/home/xavier/Tech3/Docs/Ruby/ruby.pdf').should be_false
         end
