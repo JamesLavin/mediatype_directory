@@ -18,10 +18,12 @@ require 'pathname'
 # Example:
 # To create a directory at '~/Tech/Docs/PDFs' with softlinks to all PDF and ODT files under '~/Tech':
 # md = MediatypeDirectory.new
-# md.extensions        = ['.pdf','.odt']
-# md.mediatype_dirname = '~/Tech/Docs/PDFs'
-# md.directory_tree    = '~/Tech'
+# md.extensions        = ['.pdf','.odt']     # or: md.what = '.doc'
+# md.mediatype_dirname = '~/Tech/Docs/PDFs'  # or: md.to   = '~/Tech/Docs/PDFs'
+# md.directory_tree    = '~/Tech'            # or: md.from = '~/Tech'
 # md.create_directory
+#
+# (If you run the program multiple times, it will NOT make links to anything in the mediatype_dirname dir)
 #
 class MediatypeDirectory
 

@@ -56,6 +56,14 @@ If the original content of a hard link changes, the hard link will continue refe
 
     md.create_directory
 
+## COMING ATTRACTIONS (I HOPE)
+
+* More special strings, like 'photos'
+
+* Easy way to create combinations of :what and :from. For example, you might want to create ['~/Tech/Docs/PDFs', '~/Tech/Docs/Audio', '~/Tech/Docs/Video'] for each of five directory trees, ['~/Tech/Javascript', '~/Tech/Python', '~/Tech/PostgreSQL', '~/Tech/Ruby', '~/Tech/HTML5']
+
+* An option to update hardlinks if and only if the original file has changed
+
 ## LEGAL DISCLAIMER
 
 Please use at your own risk. I guarantee nothing about this program.
