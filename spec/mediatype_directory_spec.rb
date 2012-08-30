@@ -276,9 +276,32 @@ describe MediatypeDirectory do
 
     end
 
+    context "when mediatype_dirname & directory_tree are valid" do
+
+      let(:config) { { mediatype_dirname: '/home/xavier/Tech3',
+                       directory_tree: '/home/xavier/Tech2' } }
+ 
+      it "throws InvalidDirname error" do
+        expect { subject.create_directory }.to_not raise_error(MediatypeDirectory::InvalidDirname)
+      end
+
+    end
+
     context "when invalid mediatype_dirname" do
 
-      let(:config) { { mediatype_dirname: '~/techfiles/ /pd fs' } }
+      let(:config) { { mediatype_dirname: 'not/valid/xavier/Tech3',
+                       directory_tree: '/home/xavier/Tech2' } }
+ 
+      it "throws InvalidDirname error" do
+        expect { subject.create_directory }.to raise_error(MediatypeDirectory::InvalidDirname)
+      end
+
+    end
+
+    context "when invalid directory_tree" do
+
+      let(:config) { { mediatype_dirname: '/home/xavier/Tech3',
+                       directory_tree: 'totally/invalid/xavier/Tech2' } }
  
       it "throws InvalidDirname error" do
         expect { subject.create_directory }.to raise_error(MediatypeDirectory::InvalidDirname)

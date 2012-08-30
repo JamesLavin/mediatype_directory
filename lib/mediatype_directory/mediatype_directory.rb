@@ -187,7 +187,9 @@ class MediatypeDirectory
   # Ideally, should use a regexp that matches valid directories
   # For now, a simple sanity check
   def validate_dirname(dirname)
-    raise MediatypeDirectory::InvalidDirname, "#{dirname.to_s} is not a valid directory name" if !dirname.to_s.match(/^\//)
+    if !dirname.to_s.match(/^\//)
+      raise MediatypeDirectory::InvalidDirname, "#{dirname.to_s} is not a valid directory name"
+    end
   end
 
   def expand_path(path)
