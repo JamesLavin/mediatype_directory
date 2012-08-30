@@ -29,8 +29,8 @@ class MediatypeDirectory
                            '.divx','.dvdmedia','.f4v','.fbr','.flv','.hdmov',
                            '.imovieproj','.m2p','.m4v','.mod','.moi','.mov',
                            '.mp4','.mpeg','.mpg','.mts','.ogm','.ogv','.ogx',
-                           '.rm','.rmvb','.scm','.srt','.swf','.vob','.vro',
-                           '.wmv','.xvid','.yuv']
+                           '.rm','.rmvb','.scm','.srt','.vob','.vro','.wmv',
+                           '.xvid','.yuv']
 
   AUDIO_FILE_EXTENSIONS = ['.aa','.aa3','.acd','.acm','.aif','.amr','.ape',
                            '.at3','.caf','.dcf','.dss','.emp','.emx','.flac',
