@@ -211,6 +211,27 @@ describe MediatypeDirectory do
           File.exists?('/home/xavier/Tech3/Docs/xml.xml').should be_false
         end
 
+        context "with remove_old_links = true" do
+        
+          before do
+            FileUtils.mkdir_p('/home/xavier/Tech3/Docs/Ruby')
+            FileUtils.touch('/home/xavier/Tech3/Docs/Ruby/ruby_testing.pdf')
+            FileUtils.touch('/home/xavier/Tech3/Docs/Ruby/ruby.pdf')
+            File.exists?('/home/xavier/Tech3/Docs/Ruby/ruby_testing.pdf').should be_true
+            File.exists?('/home/xavier/Tech3/Docs/Ruby/ruby.pdf').should be_true
+            subject.remove_old_links = true
+          end
+
+          it "should remove old links" do
+            subject.should_receive(:check_directories)
+            subject.should_receive(:create_links)
+            subject.create_directory
+            File.exists?('/home/xavier/Tech3/Docs/Ruby/ruby_testing.pdf').should be_false
+            File.exists?('/home/xavier/Tech3/Docs/Ruby/ruby.pdf').should be_false
+          end
+
+        end
+
       end
 
       context "with test_mode = true" do
@@ -228,6 +249,27 @@ describe MediatypeDirectory do
           Dir.glob(File.join("/home/xavier/Tech3/Docs/Ruby","**","*.pdf")).should == []
           File.exists?('/home/xavier/Tech3/Docs/Ruby/ruby_testing.pdf').should be_false
           File.exists?('/home/xavier/Tech3/Docs/Ruby/ruby.pdf').should be_false
+        end
+
+        context "with remove_old_links = true" do
+        
+          before do
+            FileUtils.mkdir_p('/home/xavier/Tech3/Docs/Ruby')
+            FileUtils.touch('/home/xavier/Tech3/Docs/Ruby/ruby_testing.pdf')
+            FileUtils.touch('/home/xavier/Tech3/Docs/Ruby/ruby.pdf')
+            File.exists?('/home/xavier/Tech3/Docs/Ruby/ruby_testing.pdf').should be_true
+            File.exists?('/home/xavier/Tech3/Docs/Ruby/ruby.pdf').should be_true
+            subject.remove_old_links = true
+          end
+
+          it "should not remove old links" do
+            subject.should_receive(:check_directories)
+            subject.should_receive(:create_links)
+            subject.create_directory
+            File.exists?('/home/xavier/Tech3/Docs/Ruby/ruby_testing.pdf').should be_true
+            File.exists?('/home/xavier/Tech3/Docs/Ruby/ruby.pdf').should be_true
+          end
+
         end
 
       end
