@@ -42,6 +42,22 @@ It's safe to re-run this program as many times as you want. If a link already ex
 
 If the original content of a hard link changes, the hard link will continue referring to the original version. You can delete the hard link (which should remove the old version from your system) and regenerate a new hardlink, which should point to the new version.
 
+## DELETING A FILE WITH MULTIPLE LINKS
+
+After you create link directories, deleting files becomes a hassle because you must track down ALL file references. So we make this a bit easier.
+
+To delete all links to a filename under a directory_tree:
+
+    require 'mediatype_directory'
+
+    MediatypeDirectory.delete_all 'file_I_want_to_delete.mp4', '~/path/to/top/of/directory_tree'
+
+To see the files that would be deleted without deleting any (i.e., test mode), change the above to:
+
+    MediatypeDirectory.delete_all 'file_I_want_to_delete.mp4', '~/path/to/top/of/directory_tree', true
+
+(We will also provide this as a command-line option.)
+
 ## EXAMPLE
 
     require 'mediatype_directory'
