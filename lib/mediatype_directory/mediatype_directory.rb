@@ -47,6 +47,20 @@ class MediatypeDirectory
   class InvalidDirname < StandardError
   end
 
+  # delete all files named #{filename} under the directory tree #{dirname}
+  def self.delete_all(filename, dirname, test = false)
+    return unless dirname = File.expand_path(dirname)
+    to_be_deleted = Dir.glob(dirname + "/**/" + filename)
+    if test
+      to_be_deleted.each { |to_d| puts "Would delete #{to_d}" }
+    else
+      to_be_deleted.each do |to_d|
+        puts "Deleting #{to_d}"
+        File.delete(to_d)
+      end
+    end
+  end
+
   def initialize(config)
     self.extensions         = config[:extensions] || config[:what]
     self.mediatype_dirname  = config[:mediatype_dirname] || config[:target] || config[:to]
@@ -189,7 +203,7 @@ class MediatypeDirectory
   # Ideally, should use a regexp that matches valid directories
   # For now, a simple sanity check
   def validate_dirname(dirname)
-    if !dirname.to_s.match(/^\//)
+    unless dirname.to_s.match(/^\//)
       raise MediatypeDirectory::InvalidDirname, "#{dirname.to_s} is not a valid directory name"
     end
   end

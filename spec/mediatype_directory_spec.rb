@@ -23,7 +23,48 @@ class File
   end
 end
 
-describe MediatypeDirectory do
+describe 'MediatypeDirectory.delete_all' do
+
+  let(:file1) { '/home/xavier/Software2/Postgres/Testing/VIDEO/testing_postgres.mov' }
+  let(:file2) { '/home/xavier/Software2/Docs/Postgres/testing_postgres.mov' }
+  let(:file3) { '/home/xavier/Software2/Docs/VIDEO/testing_postgres.mov' }
+  let(:file4) { '/home/xavier/Software2/Javascript/Testing/VIDEO/testing_javascript.mov' }
+  let(:file5) { '/home/xavier/Software/Postgres/Testing/VIDEO/testing_postgres.mov' }
+
+  before do
+    FileUtils.mkdir_p('/home/xavier/Software2/Postgres/Testing/VIDEO')
+    FileUtils.mkdir_p('/home/xavier/Software2/Docs/Postgres')
+    FileUtils.mkdir_p('/home/xavier/Software2/Docs/VIDEO')
+    FileUtils.mkdir_p('/home/xavier/Software2/Javascript/Testing/VIDEO')
+    FileUtils.mkdir_p('/home/xavier/Software/Postgres/Testing/VIDEO')
+    FileUtils.touch(file1)
+    FileUtils.touch(file2)
+    FileUtils.touch(file3)
+    FileUtils.touch(file4)
+    FileUtils.touch(file5)
+  end
+
+  it 'should delete all copies of file with same name and no other files' do
+    MediatypeDirectory.delete_all('testing_postgres.mov','~/Software2')
+    File.exists?(file1).should be_false
+    File.exists?(file2).should be_false
+    File.exists?(file3).should be_false
+    File.exists?(file4).should be_true
+    File.exists?(file5).should be_true
+  end
+
+  it 'should delete no files when test = true' do
+    MediatypeDirectory.delete_all('testing_postgres.mov','~/Software2',true)
+    File.exists?(file1).should be_true
+    File.exists?(file2).should be_true
+    File.exists?(file3).should be_true
+    File.exists?(file4).should be_true
+    File.exists?(file5).should be_true
+  end
+
+end
+
+describe 'MediatypeDirectory instance' do
 
   subject { MediatypeDirectory.new(config) }
 
