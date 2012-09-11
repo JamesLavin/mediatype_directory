@@ -27,19 +27,7 @@ require 'pathname'
 #
 class MediatypeDirectory
 
-  VIDEO_FILE_EXTENSIONS = ['.3g2','.3gp','.asf','.asx','.avi','.bsf','.dat',
-                           '.divx','.dvdmedia','.f4v','.fbr','.flv','.hdmov',
-                           '.imovieproj','.m2p','.m4v','.mod','.moi','.mov',
-                           '.mp4','.mpeg','.mpg','.mts','.ogm','.ogv','.ogx',
-                           '.rm','.rmvb','.scm','.srt','.vob','.vro','.wmv',
-                           '.xvid','.yuv']
-
-  AUDIO_FILE_EXTENSIONS = ['.aa','.aa3','.acd','.acm','.aif','.amr','.ape',
-                           '.at3','.caf','.dcf','.dss','.emp','.emx','.flac',
-                           '.gpx','.iff','.kpl','.m3u','.m3u8','.m4a','.m4b',
-                           '.m4p','.mid','.midi','.mod','.mp3','.mpa','.mpga',
-                           '.oga','.ogg','.omf','.pcast','.ra','.ram','.snd',
-                           '.wav','.wma']
+  require "mediatype_directory/file_extensions"
 
   attr_accessor :extensions, :linktype
   attr_reader :mediatype_dirname, :directory_tree, :test_mode, :mediatype_files, :remove_old_links
@@ -86,9 +74,9 @@ class MediatypeDirectory
 
   def extensions=(exts)
     @extensions = if exts =~ /video/i
-                    VIDEO_FILE_EXTENSIONS
+                    FileExtensions::VIDEO_FILE_EXTENSIONS
                   elsif exts =~ /audio/i
-                    AUDIO_FILE_EXTENSIONS
+                    FileExtensions::AUDIO_FILE_EXTENSIONS
                   else
                     Array(exts)
                   end
@@ -173,7 +161,7 @@ class MediatypeDirectory
   end
 
   def nil_or_convert_dirname(dirname)
-    (dirname.nil? || dirname == '') ? nil : convert_to_pathname(expand_path(dirname))
+    (dirname.nil? || dirname == '') ? nil : Pathname.new(File.expand_path(dirname))
   end
 
   def check_directories
@@ -206,14 +194,6 @@ class MediatypeDirectory
     unless dirname.to_s.match(/^\//)
       raise MediatypeDirectory::InvalidDirname, "#{dirname.to_s} is not a valid directory name"
     end
-  end
-
-  def expand_path(path)
-    File.expand_path(path)
-  end
-
-  def convert_to_pathname(path)
-    Pathname.new(path)
   end
 
   def delete_old_links
