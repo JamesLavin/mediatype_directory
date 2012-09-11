@@ -32,16 +32,10 @@ describe 'MediatypeDirectory.delete_all' do
   let(:file5) { '/home/xavier/Software/Postgres/Testing/VIDEO/testing_postgres.mov' }
 
   before do
-    FileUtils.mkdir_p('/home/xavier/Software2/Postgres/Testing/VIDEO')
-    FileUtils.mkdir_p('/home/xavier/Software2/Docs/Postgres')
-    FileUtils.mkdir_p('/home/xavier/Software2/Docs/VIDEO')
-    FileUtils.mkdir_p('/home/xavier/Software2/Javascript/Testing/VIDEO')
-    FileUtils.mkdir_p('/home/xavier/Software/Postgres/Testing/VIDEO')
-    FileUtils.touch(file1)
-    FileUtils.touch(file2)
-    FileUtils.touch(file3)
-    FileUtils.touch(file4)
-    FileUtils.touch(file5)
+    [file1, file2, file3, file4, file5].each do |f|
+      FileUtils.mkdir_p(File.dirname(f))
+      FileUtils.touch(f)
+    end
   end
 
   it 'should delete all copies of file with same name and no other files' do
